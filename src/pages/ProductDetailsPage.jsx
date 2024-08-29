@@ -106,12 +106,36 @@ function ProductDetailsPage() {
     });
   };
 
+  const onSubmitHandler = async (e) => {
+    e.preventDefault();
+    try{
+      const formData = new FormData();
+      formData.append("name",product.name)
+      formData.append("description",product.description)
+      formData.append("price",product.price)
+      formData.append("stock",product.stock)
+      formData.append("categoryIds",product.categoryIds.join(","))
+
+      if(product.image){
+        formData.append("image",product.image)
+      }
+      if(productId){
+        await ProductApi.updateProduct(productId,formData)
+      }else{
+        await ProductApi.createProduct(formData)
+      }
+
+    }catch(error){
+      console.log(error)
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
       <h1 className="text-3xl font-bold mb-6 text-gray-800">
         {productId ? "Edit Product" : "Add New Product"}
       </h1>
-      <form className="space-y-6 ">
+      <form className="space-y-6 " onSubmit={onSubmitHandler}>
         {/* Grid */}
         <div className="grid grid-cols-2 gap-6">
           {/* Left Column */}

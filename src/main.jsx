@@ -11,8 +11,8 @@ createRoot(document.getElementById("root")).render(
   <NextUIProvider>
     <AuthProvider>
       <Provider store={store}>
-        {/* <App /> */}
-        <FileUpload />
+        <App />
+        {/* <FileUpload /> */}
       </Provider>
     </AuthProvider>
   </NextUIProvider>
