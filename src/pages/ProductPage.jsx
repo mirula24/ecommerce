@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import ProductApi from "../apis/ProductsApi";
 import { useSelector } from "react-redux";
-import { PencilIcon } from "@heroicons/react/24/outline";
+import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { Pagination } from "@nextui-org/react";
 import { CloseFilledIcon, SearchIcon } from "../assets/icons";
 import { useDebounce } from "use-debounce";
@@ -192,7 +192,7 @@ function ProductPage() {
                               }}
                               className="text-red-600 hover:text-red-200 transition duration-150 ease-in-out"
                             >
-                              <PencilIcon className="h-5 w-5" />
+                              <TrashIcon className="h-5 w-5" />
                             </button>
                           </div>
                         </td>
