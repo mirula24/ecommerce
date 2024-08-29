@@ -54,9 +54,6 @@ function ProductDetailsPage() {
     }
   }, [productId]);
 
-  console.log("product", product);
-  console.log("location", location.state);
-
   const cancelHandler = () => {
     navigate(-1);
   };

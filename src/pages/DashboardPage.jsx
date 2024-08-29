@@ -75,6 +75,7 @@ function DashboardPage() {
                 return (
                   <NavLink
                     // end={items.href === location.pathname}
+                    end
                     key={items.name}
                     to={items.href}
                     className={({ isActive }) => {
