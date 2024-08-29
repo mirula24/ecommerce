@@ -8,8 +8,7 @@ import {
   ShoppingBagIcon,
   UsersIcon,
 } from "@heroicons/react/24/outline";
-import classNames from '../utils/styles.util'
-
+import classNames from "../utils/styles.util";
 
 const navigationList = [
   { name: "Home", href: "/dashboard", icon: HomeIcon },
@@ -37,7 +36,7 @@ const navigationList = [
 
 function DashboardPage() {
   const { logout, user } = useAuth();
-  const location = useLocation()
+  const location = useLocation();
   const navigate = useNavigate();
   const logoutHandler = () => {
     logout();
@@ -75,18 +74,21 @@ function DashboardPage() {
                 const IconComponent = items.icon;
                 return (
                   <NavLink
-                    end
+                    // end={items.href === location.pathname}
                     key={items.name}
                     to={items.href}
-                    className={({isActive}) => {
+                    className={({ isActive }) => {
                       const dynamicClassName = isActive
-                      ? "bg-primary-darker text-white "
-                      : " text-text-gray hover:bg-primary-dark hover:text-text-white "
+                        ? "bg-primary-darker text-white "
+                        : " text-text-gray hover:bg-primary-dark hover:text-text-white ";
                       // return (
                       //   dynamicClassName +
                       //   " group flex items-center px-2 py-2 text-sm font-medium rounded-md "
                       // );
-                      return classNames(dynamicClassName, "group flex items-center px-2 py-2 text-sm font-medium rounded-md")
+                      return classNames(
+                        dynamicClassName,
+                        "group flex items-center px-2 py-2 text-sm font-medium rounded-md"
+                      );
                     }}
                   >
                     <IconComponent className="mr-3 flex-shrink-0 h-6 w-6" />
@@ -113,17 +115,18 @@ function DashboardPage() {
         <main className="flex-1 relative z-0 overflow-y-auto py-6">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
             <h1 className="text-2xl font-semibold text-gray-900">
-              {
-              navigationList.find((items)=>{
-                return items.href === location.pathname;
-              })?.name || "Not found"
-              }
+              {location.pathname === "/dashboard"
+                ? "Home"
+                : [...navigationList]
+                    .reverse()
+                    .find((item) => location.pathname.includes(item.href))
+                    ?.name || "Not Found"}
             </h1>
           </div>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-              <div className="py-4">
-                <Outlet />
-              </div>
+            <div className="py-4">
+              <Outlet />
+            </div>
           </div>
         </main>
       </div>
