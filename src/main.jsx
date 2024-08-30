@@ -6,12 +6,14 @@ import { NextUIProvider } from "@nextui-org/react";
 import { Provider } from "react-redux";
 import store from "./redux/store.js";
 import FileUpload from "./learning/FileUpload.jsx";
+import { Toaster } from "sonner";
 
 createRoot(document.getElementById("root")).render(
   <NextUIProvider>
     <AuthProvider>
       <Provider store={store}>
         <App />
+        <Toaster richColors />
         {/* <FileUpload /> */}
       </Provider>
     </AuthProvider>

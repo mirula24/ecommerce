@@ -2,7 +2,16 @@ import { useEffect, useState } from "react";
 import ProductApi from "../apis/ProductsApi";
 import { useSelector } from "react-redux";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
-import { Pagination } from "@nextui-org/react";
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  Pagination,
+  useDisclosure,
+} from "@nextui-org/react";
 import { CloseFilledIcon, SearchIcon } from "../assets/icons";
 import { useDebounce } from "use-debounce";
 import { useNavigate } from "react-router-dom";
@@ -41,9 +50,9 @@ const columns = [
 ];
 
 function ProductPage() {
-  const isLoading = useSelector((state) => {
-    return state.products.isLoading;
-  });
+  // const isLoading = useSelector((state) => {
+  //     return state.products.isLoading
+  // })
   const productList = useSelector((state) => {
     return state.products.items;
   });
@@ -59,21 +68,27 @@ function ProductPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [debounceSearchQuery] = useDebounce(searchQuery, 700);
   const navigate = useNavigate();
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [productToDeleted, setProductToDeleted] = useState(null);
 
   useEffect(() => {
     ProductApi.getProduct(page, limit, debounceSearchQuery);
   }, [page, limit, debounceSearchQuery]);
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-full">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
+  // if(isLoading){
+  //     return (
+  //         <div className="flex justify-center items-center h-full">
+  //             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+  //         </div>
+  //     )
+  // }
 
   if (error) {
-    return <div className="text-red-600 text-center">{error}</div>;
+    const errorMessage =
+      typeof error === "object" && error.message
+        ? error.message
+        : JSON.stringify(error);
+    return <div className="text-red-600 text-center">{errorMessage}</div>;
   }
 
   const totalPages = Math.ceil(total / limit);
@@ -85,12 +100,29 @@ function ProductPage() {
     }).format(Number(price));
   };
 
-  const addProductHandler = () => {
+  const createProductClickHandler = () => {
     navigate("/dashboard/products/new");
   };
 
-  const editProductHandler = (productItem) => {
-    navigate(`/dashboard/products/${productItem.id}`, { state: productItem });
+  const updateProductClickHandler = (product) => {
+    navigate(`/dashboard/products/${product.id}`, {
+      state: { product },
+    });
+  };
+
+  const deleteProductHandler = (product) => () => {
+    setProductToDeleted(product);
+    onOpen();
+  };
+
+  const deleteHandler = (onClose) => async () => {
+    await ProductApi.deleteProduct(
+      productToDeleted.id,
+      page,
+      limit,
+      searchQuery
+    );
+    onClose();
   };
 
   return (
@@ -126,7 +158,7 @@ function ProductPage() {
             )}
           </div>
           <button
-            onClick={addProductHandler}
+            onClick={createProductClickHandler}
             className="flex items-center justify-center rounded-md bg-primary px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-primary-light focused-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary transition duration-150 ease-in-out"
           >
             Add Product
@@ -179,17 +211,15 @@ function ProductPage() {
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center">
                           <div className="flex justify-center items-center space-x-2">
                             <button
-                              onClick={() => {
-                                editProductHandler(productItem);
-                              }}
+                              onClick={() =>
+                                updateProductClickHandler(productItem)
+                              }
                               className="text-primary hover:text-primary-light transition duration-150 ease-in-out"
                             >
                               <PencilIcon className="h-5 w-5" />
                             </button>
                             <button
-                              onClick={() => {
-                                alert("edit Button Clicked");
-                              }}
+                              onClick={deleteProductHandler(productItem)}
                               className="text-red-600 hover:text-red-200 transition duration-150 ease-in-out"
                             >
                               <TrashIcon className="h-5 w-5" />
@@ -228,6 +258,34 @@ function ProductPage() {
           showShadow={true}
         />
       </div>
+
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange} backdrop="opaque">
+        <ModalContent>
+          {(onClose) => {
+            return (
+              <>
+                <ModalHeader className="flex flex-col gap-1">
+                  Confirm Delete
+                </ModalHeader>
+                <ModalBody>
+                  <p>
+                    Are yu sure want to delete this product span{" "}
+                    <span className="font-bold text-red-600">{`"${productToDeleted.name}`}</span>
+                  </p>
+                </ModalBody>
+                <ModalFooter>
+                  <Button color="default" variant="light" onPress={onClose}>
+                    Cancel
+                  </Button>
+                  <Button color="danger" onPress={deleteHandler(onClose)}>
+                    Yes, Delete
+                  </Button>
+                </ModalFooter>
+              </>
+            );
+          }}
+        </ModalContent>
+      </Modal>
     </div>
   );
 }

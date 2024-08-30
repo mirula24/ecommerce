@@ -9,6 +9,7 @@ import {
 } from "../redux/products/productsSlice";
 import store from "../redux/store";
 import axiosInstance from "./axiosInstance";
+import { toast } from "sonner";
 
 class ProductApi {
   static async getProduct(page = 1, limit = 10, query) {
@@ -28,8 +29,10 @@ class ProductApi {
           total: data.total,
         })
       );
+      toast.success("Create Product succes")
     } catch (e) {
       console.log("error: ", e.message);
+      toast.error(`ProductsApi getProducts: ${e.message}`)
       throw new Error(`ProductsApi getProducts: ${e.message}`);
     } finally {
       store.dispatch(setLoading(false));
@@ -67,6 +70,7 @@ class ProductApi {
       store.dispatch(setProductCategories(data));
     } catch (e) {
       console.log("error: ", e.message);
+      toast.error(e.message)
       throw new Error(`ProductsApi getCategories: ${e.message}`);
     } finally {
       store.dispatch(setLoading(false));
@@ -80,8 +84,10 @@ class ProductApi {
         headers: { "Content-Type": "multipart/form-data" },
       });
       store.dispatch(addProduct(res.data));
+      toast.success("Create product successfully")
     } catch (e) {
       console.log("Error post produc:", e.message);
+      toast.error("Error post produc:", e.message)
       store.dispatch(setLoading(false));
     }
   }
@@ -103,6 +109,19 @@ class ProductApi {
       store.dispatch(setError(error));
     } finally {
       store.dispatch(setLoading(false));
+    }
+  }
+  static async deleteProduct(id,page,limit,query){
+    store.dispatch(setLoading(true))
+    try {
+      await axiosInstance.delete(`/product/${id}`)
+      toast.success("Product success deleted")
+      await this.getProduct(page,limit,query)
+    } catch (error) {
+      store.error(error.message)
+      toast.error(error.message)
+    }finally{
+      store.dispatch(setLoading(false))
     }
   }
 }
